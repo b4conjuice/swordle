@@ -1,3 +1,7 @@
+# TODO
+
+- fix streak logic (should check if you read yesterday)
+
 # Tailwind CSS example
 
 This is an example of using [Tailwind CSS](https://tailwindcss.com) in a Next.js project.
