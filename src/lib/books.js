@@ -67,7 +67,8 @@ const books = [
   'Rev.',
 ]
 
-const bookIndex = bookName => books.findIndex(b => b === bookName) + 1
+const bookIndex = bookName =>
+  books.findIndex(b => b === bookName.replace(' ', ' ')) + 1
 
 export default books
 export { bookIndex }
