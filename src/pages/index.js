@@ -1,12 +1,12 @@
 import useSwr from 'swr'
+import format from 'date-fns/format'
 
 import Page from '@/components/page'
 import Main from '@/components/main'
 import Title from '@/components/title'
 import { bookIndex } from '@/lib/books'
 import useLocalStorage from '@/lib/useLocalStorage'
-
-const fetcher = url => fetch(url).then(res => res.json())
+import fetcher from '@/lib/fetcher'
 
 const Button = ({
   scripture,
@@ -52,7 +52,8 @@ const Button = ({
 }
 
 const Home = () => {
-  const { data } = useSwr('/api/sword', fetcher)
+  const date = format(new Date(), 'yyyy-M-d')
+  const { data } = useSwr(() => `/api/sword/${date}`, fetcher)
   const [streak, setStreak] = useLocalStorage('swordle-streak', 0)
   const [maxStreak, setMaxStreak] = useLocalStorage('swordle-maxStreak', 0)
   const [total, setTotal] = useLocalStorage('swordle-total', 0)
