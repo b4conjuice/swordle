@@ -1,5 +1,6 @@
 import useSwr from 'swr'
 import format from 'date-fns/format'
+import subDays from 'date-fns/subDays'
 
 import Page from '@/components/page'
 import Main from '@/components/main'
@@ -10,6 +11,8 @@ import fetcher from '@/lib/fetcher'
 
 const Button = ({
   scripture,
+  today,
+  yesterday,
   streak,
   setStreak,
   maxStreak,
@@ -18,7 +21,7 @@ const Button = ({
   setTotal,
 }) => {
   const [lastRead, setLastRead] = useLocalStorage('swordle-lastRead', null)
-  const readToday = lastRead === scripture
+  const readToday = lastRead === today
   const [bookAndChapter] = scripture.split(':')
   const [book, chapter] = bookAndChapter.split(' ')
   const bookNumber = bookIndex(book)
@@ -34,14 +37,20 @@ const Button = ({
       target='_blank'
       rel='noopener noreferrer'
       onClick={() => {
-        if (lastRead !== scripture) {
-          const currentStreak = streak + 1
-          setStreak(currentStreak)
-          setLastRead(scripture)
-          if (currentStreak > maxStreak) {
-            setMaxStreak(currentStreak)
-          }
+        if (lastRead !== today) {
           setTotal(total + 1)
+          const readYesterday = lastRead === yesterday
+          setLastRead(today)
+
+          if (readYesterday) {
+            const currentStreak = streak + 1
+            setStreak(currentStreak)
+            if (currentStreak > maxStreak) {
+              setMaxStreak(currentStreak)
+            }
+          } else {
+            setStreak(1)
+          }
         }
       }}
     >
@@ -52,8 +61,10 @@ const Button = ({
 }
 
 const Home = () => {
-  const date = format(new Date(), 'yyyy-M-d')
-  const { data } = useSwr(() => `/api/sword/${date}`, fetcher)
+  const now = new Date()
+  const today = format(now, 'yyyy-M-d')
+  const yesterday = format(subDays(now, 1), 'yyyy-MM-dd')
+  const { data } = useSwr(() => `/api/sword/${today}`, fetcher)
   const [streak, setStreak] = useLocalStorage('swordle-streak', 0)
   const [maxStreak, setMaxStreak] = useLocalStorage('swordle-maxStreak', 0)
   const [total, setTotal] = useLocalStorage('swordle-total', 0)
@@ -64,6 +75,8 @@ const Home = () => {
         {data && (
           <Button
             {...data}
+            today={today}
+            yesterday={yesterday}
             streak={streak}
             setStreak={setStreak}
             maxStreak={maxStreak}
