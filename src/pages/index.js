@@ -62,7 +62,7 @@ const Button = ({
 
 const Home = () => {
   const now = new Date()
-  const today = format(now, 'yyyy-M-d')
+  const today = format(now, 'yyyy-MM-dd')
   const yesterday = format(subDays(now, 1), 'yyyy-MM-dd')
   const { data } = useSwr(() => `/api/sword/${today}`, fetcher)
   const [streak, setStreak] = useLocalStorage('swordle-streak', 0)
