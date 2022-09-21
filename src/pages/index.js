@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import useSwr from 'swr'
 import format from 'date-fns/format'
 import subDays from 'date-fns/subDays'
@@ -19,10 +20,13 @@ const Button = ({
   setMaxStreak,
   total,
   setTotal,
+  bookAndChapter: savedBookAndChapter,
 }) => {
   const [lastRead, setLastRead] = useLocalStorage('swordle-lastRead', null)
   const readToday = lastRead === today
-  const [bookAndChapter] = scripture.split(':')
+  const [bookAndChapter] = scripture
+    ? scripture.split(':')
+    : [savedBookAndChapter]
   const [book, chapter] = bookAndChapter.split(' ')
   const bookNumber = bookIndex(book)
   const bibleText = `${bookNumber}${chapter.padStart(3, '0')}001`
@@ -72,11 +76,22 @@ const Home = () => {
   const [streak, setStreak] = useLocalStorage('swordle-streak', 0)
   const [maxStreak, setMaxStreak] = useLocalStorage('swordle-maxStreak', 0)
   const [total, setTotal] = useLocalStorage('swordle-total', 0)
+  const [bookAndChapter, setBookAndChapter] = useLocalStorage(
+    'swordle-bookAndChapter'
+  )
+  useEffect(() => {
+    if (data?.scripture) {
+      const [latestBookAndChapter] = data.scripture.split(':')
+      if (latestBookAndChapter !== bookAndChapter) {
+        setBookAndChapter(latestBookAndChapter)
+      }
+    }
+  }, [data, bookAndChapter, setBookAndChapter])
   return (
     <Page>
       <Main className='flex flex-col items-center justify-center space-y-4'>
         <Title>swordle</Title>
-        {data && (
+        {(data || bookAndChapter) && (
           <Button
             {...data}
             today={today}
@@ -87,6 +102,7 @@ const Home = () => {
             setMaxStreak={setMaxStreak}
             total={total}
             setTotal={setTotal}
+            bookAndChapter={bookAndChapter}
           />
         )}
         <p>current streak: {streak}</p>
