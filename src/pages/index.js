@@ -1,4 +1,6 @@
-import { useEffect } from 'react'
+import { useState, useEffect, Fragment } from 'react'
+import { Dialog, Transition } from '@headlessui/react'
+import { XMarkIcon, ChartBarIcon } from '@heroicons/react/24/solid'
 import useSwr from 'swr'
 import format from 'date-fns/format'
 import subDays from 'date-fns/subDays'
@@ -69,6 +71,69 @@ const Button = ({
   )
 }
 
+const statisticsLabels = {
+  total: 'total',
+  streak: 'current streak',
+  maxStreak: 'max streak',
+}
+
+const Statistics = ({ statistics, isOpen, setIsOpen }) => {
+  return (
+    <Transition.Root show={isOpen} as={Fragment}>
+      <Dialog
+        onClose={setIsOpen}
+        className='fixed inset-0 flex flex-col justify-end overflow-y-auto p-4'
+      >
+        <Transition.Child
+          enter='duration-300 ease-out'
+          enterFrom='opacity-0'
+          enterTo='opacity-100'
+          leave='duration-200 ease-in'
+          leaveFrom='opacity-100'
+          leaveTo='opacity-0'
+        >
+          <div className='fixed inset-0 bg-cobalt/90' />
+        </Transition.Child>
+        <Transition.Child
+          enter='duration-300 ease-out'
+          enterFrom='opacity-0 scale-95'
+          enterTo='opacity-100 scale-100'
+          leave='duration-200 ease-in'
+          leaveFrom='opacity-100 scale-100'
+          leaveTo='opacity-0 scale-95'
+        >
+          <Dialog.Panel className='relative z-10 rounded-lg p-4 dark:bg-cb-dusty-blue dark:text-gray-100'>
+            <button
+              type='button'
+              onClick={() => setIsOpen(false)}
+              className='absolute right-4 top-4'
+            >
+              <XMarkIcon className='h-6 w-6' />
+            </button>
+            <div className='space-y-3'>
+              <Dialog.Title className='mt-4 text-center text-xl'>
+                statistics
+              </Dialog.Title>
+              <div className='grid grid-cols-3'>
+                {Object.entries(statisticsLabels).map(([key, label]) => (
+                  <div key={key}>
+                    <div className='text-center text-4xl text-cb-pink'>
+                      {statistics[key]}
+                    </div>
+                    <div className='text-center text-cb-light-blue'>
+                      {label}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Dialog.Panel>
+        </Transition.Child>
+      </Dialog>
+    </Transition.Root>
+  )
+}
+
 const Home = () => {
   const now = new Date()
   const today = format(now, 'yyyy-MM-dd')
@@ -90,34 +155,47 @@ const Home = () => {
     }
   }, [data, bookAndChapter, setBookAndChapter])
   const readToday = lastRead === today
+  const [isOpen, setIsOpen] = useState(readToday || false)
+  useEffect(() => {
+    setIsOpen(readToday)
+  }, [readToday])
   return (
     <Page>
-      <Main className='flex flex-col items-center justify-center space-y-4 px-4'>
-        <Title>swordle</Title>
-        {(data || bookAndChapter) && (
-          <Button
-            {...data}
-            today={today}
-            yesterday={yesterday}
-            streak={streak}
-            setStreak={setStreak}
-            maxStreak={maxStreak}
-            setMaxStreak={setMaxStreak}
-            total={total}
-            setTotal={setTotal}
-            lastRead={lastRead}
-            setLastRead={setLastRead}
-            bookAndChapter={bookAndChapter}
-            readToday={readToday}
+      <Main className='flex flex-col p-4'>
+        <div className='flex justify-end'>
+          <button type='button' onClick={() => setIsOpen(true)}>
+            <ChartBarIcon className='h-6 w-6' />
+          </button>
+        </div>
+        <div className='flex flex-grow flex-col items-center justify-center space-y-4'>
+          <Title>swordle</Title>
+          {(data || bookAndChapter) && (
+            <Button
+              {...data}
+              today={today}
+              yesterday={yesterday}
+              streak={streak}
+              setStreak={setStreak}
+              maxStreak={maxStreak}
+              setMaxStreak={setMaxStreak}
+              total={total}
+              setTotal={setTotal}
+              lastRead={lastRead}
+              setLastRead={setLastRead}
+              bookAndChapter={bookAndChapter}
+              readToday={readToday}
+            />
+          )}
+          <Statistics
+            statistics={{
+              streak,
+              maxStreak,
+              total,
+            }}
+            isOpen={isOpen}
+            setIsOpen={setIsOpen}
           />
-        )}
-        {readToday && (
-          <>
-            <p>current streak: {streak}</p>
-            <p>max streak: {maxStreak}</p>
-            <p>total: {total}</p>
-          </>
-        )}
+        </div>
       </Main>
     </Page>
   )
