@@ -20,10 +20,11 @@ const Button = ({
   setMaxStreak,
   total,
   setTotal,
+  lastRead,
+  setLastRead,
   bookAndChapter: savedBookAndChapter,
+  readToday,
 }) => {
-  const [lastRead, setLastRead] = useLocalStorage('swordle-lastRead', null)
-  const readToday = lastRead === today
   const [bookAndChapter] = scripture
     ? scripture.split(':')
     : [savedBookAndChapter]
@@ -39,7 +40,7 @@ const Button = ({
       target='_blank'
       rel='noopener noreferrer'
       onClick={() => {
-        if (lastRead !== today) {
+        if (!readToday) {
           setTotal(total + 1)
           const readYesterday = lastRead === yesterday
           setLastRead(today)
@@ -76,6 +77,7 @@ const Home = () => {
   const [streak, setStreak] = useLocalStorage('swordle-streak', 0)
   const [maxStreak, setMaxStreak] = useLocalStorage('swordle-maxStreak', 0)
   const [total, setTotal] = useLocalStorage('swordle-total', 0)
+  const [lastRead, setLastRead] = useLocalStorage('swordle-lastRead', null)
   const [bookAndChapter, setBookAndChapter] = useLocalStorage(
     'swordle-bookAndChapter'
   )
@@ -87,6 +89,7 @@ const Home = () => {
       }
     }
   }, [data, bookAndChapter, setBookAndChapter])
+  const readToday = lastRead === today
   return (
     <Page>
       <Main className='flex flex-col items-center justify-center space-y-4'>
@@ -102,12 +105,19 @@ const Home = () => {
             setMaxStreak={setMaxStreak}
             total={total}
             setTotal={setTotal}
+            lastRead={lastRead}
+            setLastRead={setLastRead}
             bookAndChapter={bookAndChapter}
+            readToday={readToday}
           />
         )}
-        <p>current streak: {streak}</p>
-        <p>max streak: {maxStreak}</p>
-        <p>total: {total}</p>
+        {readToday && (
+          <>
+            <p>current streak: {streak}</p>
+            <p>max streak: {maxStreak}</p>
+            <p>total: {total}</p>
+          </>
+        )}
       </Main>
     </Page>
   )
