@@ -2,7 +2,7 @@
   "name": "swordle",
   "version": "1.0.0",
   "scripts": {
-    "dev": "next",
+    "dev": "next -p 1408",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
