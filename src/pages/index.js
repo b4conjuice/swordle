@@ -377,7 +377,7 @@ const Home = () => {
                       const newSequence = `${bookNumber}:${e.target.value}`
                       setSequence(newSequence)
                     }}>
-                      {Array.from({length: 150}, (_, i) => i + 1).map(ch => (
+                      {Array.from({length: booksAndChaptersMap[books[Number(sequence.split(':')[0])-1]]}, (_, i) => i + 1).map(ch => (
                         <option key={ch} value={ch}>
                           {ch}
                         </option>
