@@ -373,7 +373,7 @@ const Home = () => {
                       ))}
                     </select>
                     <select className='w-full bg-cobalt p-4' value={sequence?.split(':')[1]} onChange={e=>{
-                      const [bookNumber, chapter] = sequence.split(':')
+                      const [bookNumber, ] = sequence.split(':')
                       const newSequence = `${bookNumber}:${e.target.value}`
                       setSequence(newSequence)
                     }}>
