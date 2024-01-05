@@ -82,7 +82,7 @@ const getNextSequence = sequence => {
   const bookName = books[bookNumber-1]
   const chapters = booksAndChaptersMap[bookName]
   const nextChapter = chapter >= chapters ? 1 : chapter + 1
-  const nextBookNumber = chapter >= chapters ? bookNumber + 1 : bookNumber
+  const nextBookNumber = chapter >= chapters ? (bookNumber + 1) % books.length : bookNumber
   const next = `${nextBookNumber}:${nextChapter}`
   return next
 }
@@ -94,7 +94,7 @@ const getPrevSequence = sequence => {
   const prevChapters = booksAndChaptersMap[prevBookName]
   const prevChapter = chapter === 1 ? prevChapters : chapter - 1
   const prevBookNumber = chapter === 1 ? bookNumber - 1 : bookNumber
-  const prev = `${prevBookNumber}:${prevChapter}`
+  const prev = prevBookNumber === 0 ? `66:22` :`${prevBookNumber}:${prevChapter}`
   return prev
 }
 
