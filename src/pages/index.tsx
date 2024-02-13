@@ -92,33 +92,29 @@ const getNextSequence = (sequence: string) => {
   const [bookNumberAsString, chapterAsString] = sequence.split(':')
   const bookNumber = Number(bookNumberAsString)
   const chapter = Number(chapterAsString)
-  const bookName = books[bookNumber - 1]
-  if (bookName) {
-    const chapters = booksAndChaptersMap[bookName]
-    const nextChapter = chapters && chapter >= chapters ? 1 : chapter + 1
-    const nextBookNumber =
-      chapters && chapter >= chapters
-        ? (bookNumber + 1) % books.length
-        : bookNumber
-    const next = `${nextBookNumber}:${nextChapter}`
-    return next
-  }
-  return ''
+  const bookNumberIndex = bookNumber - 1
+  const bookName = books[bookNumberIndex]
+  const chapters = bookName ? booksAndChaptersMap[bookName] : 1
+  const nextChapter = chapters && chapter >= chapters ? 1 : chapter + 1
+  const nextBookNumber =
+    chapters && chapter >= chapters
+      ? (bookNumber + 1) % books.length
+      : bookNumber
+  const next = `${nextBookNumber}:${nextChapter}`
+  return next
 }
 const getPrevSequence = (sequence: string) => {
   const [bookNumberAsString, chapterAsString] = sequence.split(':')
   const bookNumber = Number(bookNumberAsString)
   const chapter = Number(chapterAsString)
-  const prevBookName = books[bookNumber - 2]
-  if (prevBookName) {
-    const prevChapters = booksAndChaptersMap[prevBookName]
-    const prevChapter = chapter === 1 ? prevChapters : chapter - 1
-    const prevBookNumber = chapter === 1 ? bookNumber - 1 : bookNumber
-    const prev =
-      prevBookNumber === 0 ? `66:22` : `${prevBookNumber}:${prevChapter}`
-    return prev
-  }
-  return ''
+  const prevBookNumberIndex = bookNumber - 2
+  const prevBookName = books[prevBookNumberIndex]
+  const prevChapters = prevBookName ? booksAndChaptersMap[prevBookName] : 1
+  const prevChapter = chapter === 1 ? prevChapters : chapter - 1
+  const prevBookNumber = chapter === 1 ? bookNumber - 1 : bookNumber
+  const prev =
+    prevBookNumber === 0 ? `66:22` : `${prevBookNumber}:${prevChapter}`
+  return prev
 }
 
 const SequentialButton = ({
