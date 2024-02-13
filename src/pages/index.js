@@ -79,10 +79,11 @@ const getNextSequence = sequence => {
   const [bookNumberAsString, chapterAsString] = sequence.split(':')
   const bookNumber = Number(bookNumberAsString)
   const chapter = Number(chapterAsString)
-  const bookName = books[bookNumber-1]
+  const bookName = books[bookNumber - 1]
   const chapters = booksAndChaptersMap[bookName]
   const nextChapter = chapter >= chapters ? 1 : chapter + 1
-  const nextBookNumber = chapter >= chapters ? (bookNumber + 1) % books.length : bookNumber
+  const nextBookNumber =
+    chapter >= chapters ? (bookNumber + 1) % books.length : bookNumber
   const next = `${nextBookNumber}:${nextChapter}`
   return next
 }
@@ -90,11 +91,12 @@ const getPrevSequence = sequence => {
   const [bookNumberAsString, chapterAsString] = sequence.split(':')
   const bookNumber = Number(bookNumberAsString)
   const chapter = Number(chapterAsString)
-  const prevBookName = books[bookNumber-2]
+  const prevBookName = books[bookNumber - 2]
   const prevChapters = booksAndChaptersMap[prevBookName]
   const prevChapter = chapter === 1 ? prevChapters : chapter - 1
   const prevBookNumber = chapter === 1 ? bookNumber - 1 : bookNumber
-  const prev = prevBookNumber === 0 ? `66:22` :`${prevBookNumber}:${prevChapter}`
+  const prev =
+    prevBookNumber === 0 ? `66:22` : `${prevBookNumber}:${prevChapter}`
   return prev
 }
 
@@ -116,7 +118,7 @@ const SequentialButton = ({
   const prevSequence = getPrevSequence(sequence)
   const [bookNumber, chapter] = (readToday ? prevSequence : sequence).split(':')
   const bibleText = `${bookNumber}${chapter.padStart(3, '0')}001`
-  const bookAndChapter = `${books[bookNumber-1]} ${chapter}`
+  const bookAndChapter = `${books[bookNumber - 1]} ${chapter}`
 
   const chapterLink = `https://www.jw.org/finder?srcid=jwlshare&wtlocale=E&prefer=lang&bible=${bibleText}&pub=nwtsty`
   return (
@@ -240,10 +242,7 @@ const Home = () => {
     'swordle-buttonType',
     'dailyText'
   )
-  const [sequence, setSequence] = useLocalStorage(
-    'swordle-sequence',
-    '1:1'
-  )
+  const [sequence, setSequence] = useLocalStorage('swordle-sequence', '1:1')
 
   useEffect(() => {
     if (data?.scripture) {
@@ -272,39 +271,42 @@ const Home = () => {
         </div>
         <div className='flex flex-grow flex-col items-center justify-center space-y-4'>
           <Title>swordle</Title>
-          {(data || (bookAndChapter)) && ( buttonType === 'dailyText' ?
-            <DailyTextButton
-              {...data}
-              today={today}
-              yesterday={yesterday}
-              streak={streak}
-              setStreak={setStreak}
-              maxStreak={maxStreak}
-              setMaxStreak={setMaxStreak}
-              total={total}
-              setTotal={setTotal}
-              lastRead={lastRead}
-              setLastRead={setLastRead}
-              bookAndChapter={bookAndChapter}
-              readToday={readToday}
-            />: <SequentialButton
-              {...data}
-              today={today}
-              yesterday={yesterday}
-              streak={streak}
-              setStreak={setStreak}
-              maxStreak={maxStreak}
-              setMaxStreak={setMaxStreak}
-              total={total}
-              setTotal={setTotal}
-              lastRead={lastRead}
-              setLastRead={setLastRead}
-              bookAndChapter={bookAndChapter}
-              readToday={readToday}
-              sequence={sequence}
-              setSequence={setSequence}
-            />
-          ) }
+          {(data || bookAndChapter) &&
+            (buttonType === 'dailyText' ? (
+              <DailyTextButton
+                {...data}
+                today={today}
+                yesterday={yesterday}
+                streak={streak}
+                setStreak={setStreak}
+                maxStreak={maxStreak}
+                setMaxStreak={setMaxStreak}
+                total={total}
+                setTotal={setTotal}
+                lastRead={lastRead}
+                setLastRead={setLastRead}
+                bookAndChapter={bookAndChapter}
+                readToday={readToday}
+              />
+            ) : (
+              <SequentialButton
+                {...data}
+                today={today}
+                yesterday={yesterday}
+                streak={streak}
+                setStreak={setStreak}
+                maxStreak={maxStreak}
+                setMaxStreak={setMaxStreak}
+                total={total}
+                setTotal={setTotal}
+                lastRead={lastRead}
+                setLastRead={setLastRead}
+                bookAndChapter={bookAndChapter}
+                readToday={readToday}
+                sequence={sequence}
+                setSequence={setSequence}
+              />
+            ))}
           <Statistics
             statistics={{
               streak,
@@ -349,43 +351,61 @@ const Home = () => {
                     <Dialog.Title className='mt-4 text-center text-xl'>
                       settings
                     </Dialog.Title>
-                    <select className='w-full bg-cobalt p-4' value={buttonType} onChange={e=>{
-                      setButtonType(e.target.value)
-                    }}>
+                    <select
+                      className='w-full bg-cobalt p-4'
+                      value={buttonType}
+                      onChange={e => {
+                        setButtonType(e.target.value)
+                      }}
+                    >
                       {buttonTypes.map(bType => (
                         <option key={bType.id} value={bType.id}>
                           {bType.text}
                         </option>
                       ))}
                     </select>
-                    {
-                      buttonType==='sequential' && (
-                        <div className='flex'>
-                        <select className='w-full bg-cobalt p-4' value={sequence?.split(':')[0]} onChange={e=>{
-                      const [, chapter] = sequence.split(':')
-                      const newSequence = `${e.target.value}:${chapter}`
-                      setSequence(newSequence)
-                    }}>
-                      {books.map((book, idx) => (
-                        <option key={idx+1} value={idx+1}>
-                          {book}
-                        </option>
-                      ))}
-                    </select>
-                    <select className='w-full bg-cobalt p-4' value={sequence?.split(':')[1]} onChange={e=>{
-                      const [bookNumber, ] = sequence.split(':')
-                      const newSequence = `${bookNumber}:${e.target.value}`
-                      setSequence(newSequence)
-                    }}>
-                      {Array.from({length: booksAndChaptersMap[books[Number(sequence.split(':')[0])-1]]}, (_, i) => i + 1).map(ch => (
-                        <option key={ch} value={ch}>
-                          {ch}
-                        </option>
-                      ))}
-                    </select>
+                    {buttonType === 'sequential' && (
+                      <div className='flex'>
+                        <select
+                          className='w-full bg-cobalt p-4'
+                          value={sequence?.split(':')[0]}
+                          onChange={e => {
+                            const [, chapter] = sequence.split(':')
+                            const newSequence = `${e.target.value}:${chapter}`
+                            setSequence(newSequence)
+                          }}
+                        >
+                          {books.map((book, idx) => (
+                            <option key={idx + 1} value={idx + 1}>
+                              {book}
+                            </option>
+                          ))}
+                        </select>
+                        <select
+                          className='w-full bg-cobalt p-4'
+                          value={sequence?.split(':')[1]}
+                          onChange={e => {
+                            const [bookNumber] = sequence.split(':')
+                            const newSequence = `${bookNumber}:${e.target.value}`
+                            setSequence(newSequence)
+                          }}
+                        >
+                          {Array.from(
+                            {
+                              length:
+                                booksAndChaptersMap[
+                                  books[Number(sequence.split(':')[0]) - 1]
+                                ],
+                            },
+                            (_, i) => i + 1
+                          ).map(ch => (
+                            <option key={ch} value={ch}>
+                              {ch}
+                            </option>
+                          ))}
+                        </select>
                       </div>
-                      )
-                    }
+                    )}
                   </div>
                 </Dialog.Panel>
               </Transition.Child>
