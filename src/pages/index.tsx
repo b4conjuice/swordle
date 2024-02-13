@@ -5,16 +5,15 @@ import {
   ChartBarIcon,
   Cog6ToothIcon,
 } from '@heroicons/react/24/solid'
-import useSwr from 'swr'
-import format from 'date-fns/format'
-import subDays from 'date-fns/subDays'
+import { format } from 'date-fns/format'
+import { subDays } from 'date-fns/subDays'
 
 import Page from '@/components/page'
 import Main from '@/components/main'
 import Title from '@/components/title'
-import books, { bookIndex, booksAndChaptersMap } from '@/lib/books'
-import useLocalStorage from '@/lib/useLocalStorage'
-import fetcher from '@/lib/fetcher'
+import books, { bookIndex, booksAndChaptersMap } from '@/utils/books'
+import useLocalStorage from '@/utils/useLocalStorage'
+import { api } from '@/utils/api'
 
 const DailyTextButton = ({
   scripture,
@@ -30,18 +29,32 @@ const DailyTextButton = ({
   setLastRead,
   bookAndChapter: savedBookAndChapter,
   readToday,
+}: {
+  scripture: string
+  today: string
+  yesterday: string
+  streak: number
+  setStreak: (streak: number) => void
+  maxStreak: number
+  setMaxStreak: (maxStreak: number) => void
+  total: number
+  setTotal: (total: number) => void
+  lastRead: string | null
+  setLastRead: (lastRead: string) => void
+  bookAndChapter: string | undefined
+  readToday: boolean
 }) => {
   const [bookAndChapter] = scripture
     ? scripture.split(':')
     : [savedBookAndChapter]
-  const [book, chapter] = bookAndChapter.split(' ')
-  const bookNumber = bookIndex(book)
-  const bibleText = `${bookNumber}${chapter.padStart(3, '0')}001`
+  const [book, chapter] = (bookAndChapter ?? '').split(' ')
+  const bookNumber = bookIndex(book ?? '')
+  const bibleText = `${bookNumber}${chapter ?? ''.padStart(3, '0')}001`
 
   const chapterLink = `https://www.jw.org/finder?srcid=jwlshare&wtlocale=E&prefer=lang&bible=${bibleText}&pub=nwtsty`
   return (
     <a
-      className='group w-full cursor-pointer rounded-lg border-none bg-cb-dark-blue text-center text-lg'
+      className='bg-cb-dark-blue group w-full cursor-pointer rounded-lg border-none text-center text-lg'
       href={chapterLink}
       target='_blank'
       rel='noopener noreferrer'
@@ -75,29 +88,37 @@ const DailyTextButton = ({
   )
 }
 
-const getNextSequence = sequence => {
+const getNextSequence = (sequence: string) => {
   const [bookNumberAsString, chapterAsString] = sequence.split(':')
   const bookNumber = Number(bookNumberAsString)
   const chapter = Number(chapterAsString)
   const bookName = books[bookNumber - 1]
-  const chapters = booksAndChaptersMap[bookName]
-  const nextChapter = chapter >= chapters ? 1 : chapter + 1
-  const nextBookNumber =
-    chapter >= chapters ? (bookNumber + 1) % books.length : bookNumber
-  const next = `${nextBookNumber}:${nextChapter}`
-  return next
+  if (bookName) {
+    const chapters = booksAndChaptersMap[bookName]
+    const nextChapter = chapters && chapter >= chapters ? 1 : chapter + 1
+    const nextBookNumber =
+      chapters && chapter >= chapters
+        ? (bookNumber + 1) % books.length
+        : bookNumber
+    const next = `${nextBookNumber}:${nextChapter}`
+    return next
+  }
+  return ''
 }
-const getPrevSequence = sequence => {
+const getPrevSequence = (sequence: string) => {
   const [bookNumberAsString, chapterAsString] = sequence.split(':')
   const bookNumber = Number(bookNumberAsString)
   const chapter = Number(chapterAsString)
   const prevBookName = books[bookNumber - 2]
-  const prevChapters = booksAndChaptersMap[prevBookName]
-  const prevChapter = chapter === 1 ? prevChapters : chapter - 1
-  const prevBookNumber = chapter === 1 ? bookNumber - 1 : bookNumber
-  const prev =
-    prevBookNumber === 0 ? `66:22` : `${prevBookNumber}:${prevChapter}`
-  return prev
+  if (prevBookName) {
+    const prevChapters = booksAndChaptersMap[prevBookName]
+    const prevChapter = chapter === 1 ? prevChapters : chapter - 1
+    const prevBookNumber = chapter === 1 ? bookNumber - 1 : bookNumber
+    const prev =
+      prevBookNumber === 0 ? `66:22` : `${prevBookNumber}:${prevChapter}`
+    return prev
+  }
+  return ''
 }
 
 const SequentialButton = ({
@@ -114,16 +135,30 @@ const SequentialButton = ({
   readToday,
   sequence,
   setSequence,
+}: {
+  today: string
+  yesterday: string
+  streak: number
+  setStreak: (streak: number) => void
+  maxStreak: number
+  setMaxStreak: (maxStreak: number) => void
+  total: number
+  setTotal: (total: number) => void
+  lastRead: string | null
+  setLastRead: (lastRead: string) => void
+  readToday: boolean
+  sequence: string
+  setSequence: (sequence: string) => void
 }) => {
   const prevSequence = getPrevSequence(sequence)
   const [bookNumber, chapter] = (readToday ? prevSequence : sequence).split(':')
-  const bibleText = `${bookNumber}${chapter.padStart(3, '0')}001`
-  const bookAndChapter = `${books[bookNumber - 1]} ${chapter}`
+  const bibleText = `${bookNumber}${(chapter ?? '').padStart(3, '0')}001`
+  const bookAndChapter = `${books[Number(bookNumber) - 1]} ${chapter}`
 
   const chapterLink = `https://www.jw.org/finder?srcid=jwlshare&wtlocale=E&prefer=lang&bible=${bibleText}&pub=nwtsty`
   return (
     <a
-      className='group w-full cursor-pointer rounded-lg border-none bg-cb-dark-blue text-center text-lg'
+      className='bg-cb-dark-blue group w-full cursor-pointer rounded-lg border-none text-center text-lg'
       href={chapterLink}
       target='_blank'
       rel='noopener noreferrer'
@@ -164,7 +199,17 @@ const statisticsLabels = {
   maxStreak: 'max streak',
 }
 
-const Statistics = ({ statistics, isOpen, setIsOpen }) => {
+type StasticsType = Record<string, number>
+
+const Statistics = ({
+  statistics,
+  isOpen,
+  setIsOpen,
+}: {
+  statistics: StasticsType
+  isOpen: boolean
+  setIsOpen: (isOpen: boolean) => void
+}) => {
   return (
     <Transition.Root show={isOpen} as={Fragment}>
       <Dialog
@@ -179,7 +224,7 @@ const Statistics = ({ statistics, isOpen, setIsOpen }) => {
           leaveFrom='opacity-100'
           leaveTo='opacity-0'
         >
-          <div className='fixed inset-0 bg-cobalt/90' />
+          <div className='bg-cobalt/90 fixed inset-0' />
         </Transition.Child>
         <Transition.Child
           enter='duration-300 ease-out'
@@ -189,7 +234,7 @@ const Statistics = ({ statistics, isOpen, setIsOpen }) => {
           leaveFrom='opacity-100 scale-100'
           leaveTo='opacity-0 scale-95'
         >
-          <Dialog.Panel className='relative z-10 rounded-lg p-4 dark:bg-cb-dusty-blue dark:text-gray-100'>
+          <Dialog.Panel className='dark:bg-cb-dusty-blue relative z-10 rounded-lg p-4 dark:text-gray-100'>
             <button
               type='button'
               onClick={() => setIsOpen(false)}
@@ -204,10 +249,10 @@ const Statistics = ({ statistics, isOpen, setIsOpen }) => {
               <div className='grid grid-cols-3'>
                 {Object.entries(statisticsLabels).map(([key, label]) => (
                   <div key={key}>
-                    <div className='text-center text-4xl text-cb-pink'>
+                    <div className='text-cb-pink text-center text-4xl'>
                       {statistics[key]}
                     </div>
-                    <div className='text-center text-cb-light-blue'>
+                    <div className='text-cb-light-blue text-center'>
                       {label}
                     </div>
                   </div>
@@ -230,14 +275,17 @@ const Home = () => {
   const now = new Date()
   const today = format(now, 'yyyy-MM-dd')
   const yesterday = format(subDays(now, 1), 'yyyy-MM-dd')
-  const { data } = useSwr(() => `/api/sword/${today}`, fetcher)
+  const { data } = api.sword.dt.useQuery({ date: today })
   const [streak, setStreak] = useLocalStorage('swordle-streak', 0)
   const [maxStreak, setMaxStreak] = useLocalStorage('swordle-maxStreak', 0)
   const [total, setTotal] = useLocalStorage('swordle-total', 0)
-  const [lastRead, setLastRead] = useLocalStorage('swordle-lastRead', null)
-  const [bookAndChapter, setBookAndChapter] = useLocalStorage(
-    'swordle-bookAndChapter'
+  const [lastRead, setLastRead] = useLocalStorage<string | null>(
+    'swordle-lastRead',
+    null
   )
+  const [bookAndChapter, setBookAndChapter] = useLocalStorage<
+    string | undefined
+  >('swordle-bookAndChapter')
   const [buttonType, setButtonType] = useLocalStorage(
     'swordle-buttonType',
     'sequential'
@@ -258,6 +306,13 @@ const Home = () => {
   useEffect(() => {
     setIsOpen(readToday)
   }, [readToday])
+
+  const sequenceBookName = sequence
+    ? books[Number(sequence.split(':')[0]) - 1]
+    : undefined
+  const sequenceChapters = sequenceBookName
+    ? booksAndChaptersMap[sequenceBookName] ?? 1
+    : 1
   return (
     <Page>
       <Main className='flex flex-col p-4'>
@@ -271,10 +326,10 @@ const Home = () => {
         </div>
         <div className='flex flex-grow flex-col items-center justify-center space-y-4'>
           <Title>swordle</Title>
-          {(data || bookAndChapter) &&
+          {(data ?? bookAndChapter) &&
             (buttonType === 'dailyText' ? (
               <DailyTextButton
-                {...data}
+                scripture={data?.scripture ?? ''}
                 today={today}
                 yesterday={yesterday}
                 streak={streak}
@@ -301,7 +356,6 @@ const Home = () => {
                 setTotal={setTotal}
                 lastRead={lastRead}
                 setLastRead={setLastRead}
-                bookAndChapter={bookAndChapter}
                 readToday={readToday}
                 sequence={sequence}
                 setSequence={setSequence}
@@ -329,7 +383,7 @@ const Home = () => {
                 leaveFrom='opacity-100'
                 leaveTo='opacity-0'
               >
-                <div className='fixed inset-0 bg-cobalt/90' />
+                <div className='bg-cobalt/90 fixed inset-0' />
               </Transition.Child>
               <Transition.Child
                 enter='duration-300 ease-out'
@@ -339,7 +393,7 @@ const Home = () => {
                 leaveFrom='opacity-100 scale-100'
                 leaveTo='opacity-0 scale-95'
               >
-                <Dialog.Panel className='relative z-10 rounded-lg p-4 dark:bg-cb-dusty-blue dark:text-gray-100'>
+                <Dialog.Panel className='dark:bg-cb-dusty-blue relative z-10 rounded-lg p-4 dark:text-gray-100'>
                   <button
                     type='button'
                     onClick={() => setIsSettingsDialogOpen(false)}
@@ -352,7 +406,7 @@ const Home = () => {
                       settings
                     </Dialog.Title>
                     <select
-                      className='w-full bg-cobalt p-4'
+                      className='bg-cobalt w-full p-4'
                       value={buttonType}
                       onChange={e => {
                         setButtonType(e.target.value)
@@ -367,7 +421,7 @@ const Home = () => {
                     {buttonType === 'sequential' && (
                       <div className='flex'>
                         <select
-                          className='w-full bg-cobalt p-4'
+                          className='bg-cobalt w-full p-4'
                           value={sequence?.split(':')[0]}
                           onChange={e => {
                             const [, chapter] = sequence.split(':')
@@ -382,7 +436,7 @@ const Home = () => {
                           ))}
                         </select>
                         <select
-                          className='w-full bg-cobalt p-4'
+                          className='bg-cobalt w-full p-4'
                           value={sequence?.split(':')[1]}
                           onChange={e => {
                             const [bookNumber] = sequence.split(':')
@@ -392,10 +446,7 @@ const Home = () => {
                         >
                           {Array.from(
                             {
-                              length:
-                                booksAndChaptersMap[
-                                  books[Number(sequence.split(':')[0]) - 1]
-                                ],
+                              length: sequenceChapters,
                             },
                             (_, i) => i + 1
                           ).map(ch => (

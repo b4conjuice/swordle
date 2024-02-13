@@ -1,4 +1,4 @@
-const booksAndChaptersMap = {
+const booksAndChaptersMap: Record<string, number> = {
   'Gen.': 50,
   'Ex.': 40,
   'Lev.': 27,
@@ -69,7 +69,7 @@ const booksAndChaptersMap = {
 
 const books = Object.keys(booksAndChaptersMap)
 
-const bookIndex = bookName =>
+const bookIndex = (bookName: string) =>
   books.findIndex(b => b === bookName.replace(' ', ' ')) + 1
 
 export default books

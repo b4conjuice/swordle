@@ -1,8 +1,9 @@
-module.exports = {
-  mode: 'jit',
-  purge: [
-    './src/components/**/*.{js,ts,jsx,tsx}',
-    './src/pages/**/*.{js,ts,jsx,tsx}',
+import { type Config } from 'tailwindcss'
+
+export default {
+  content: [
+    './src/**/*.tsx',
+    './node_modules/@bacondotbuild/ui/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
     extend: {
@@ -17,9 +18,12 @@ module.exports = {
         'cb-dark-blue': '#15232d',
         'cb-pink': '#fb94ff',
         'cb-light-blue': '#9effff',
+        'cb-white': '#cccccc',
+      },
+      animation: {
+        'spin-slow': 'spin 2s linear infinite',
       },
     },
   },
-  darkMode: 'media',
   plugins: [require('@tailwindcss/forms')],
-}
+} satisfies Config
