@@ -240,7 +240,7 @@ const Home = () => {
   )
   const [buttonType, setButtonType] = useLocalStorage(
     'swordle-buttonType',
-    'dailyText'
+    'sequential'
   )
   const [sequence, setSequence] = useLocalStorage('swordle-sequence', '1:1')
 
