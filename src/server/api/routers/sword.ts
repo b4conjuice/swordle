@@ -18,7 +18,7 @@ export const swordRouter = createTRPCRouter({
     .input(z.object({ date: z.string() }))
     .query(async ({ input }) => {
       const data: SwordData = await fetcher(
-        `https://notes.dlopez.app/api/sword/dt/${input.date}`
+        `https://api.dlopez.app/api/sword/dt/${input.date}`
       )
       return data
     }),
