@@ -1,20 +1,15 @@
-import { useState, useEffect, Fragment } from 'react'
-import { Dialog, Transition } from '@headlessui/react'
-import {
-  XMarkIcon,
-  ChartBarIcon,
-  Cog6ToothIcon,
-} from '@heroicons/react/24/solid'
+import { useState, useEffect, Dispatch, SetStateAction } from 'react'
+import { ChartBarIcon, Cog6ToothIcon } from '@heroicons/react/24/solid'
 import { format } from 'date-fns/format'
 import { subDays } from 'date-fns/subDays'
 
 import Page from '@/components/page'
 import Main from '@/components/main'
 import Title from '@/components/title'
+import Modal from '@/components/modal'
 import books, { bookIndex, booksAndChaptersMap } from '@/utils/books'
 import useLocalStorage from '@/utils/useLocalStorage'
 import { api } from '@/utils/api'
-import Modal from '@/components/modal'
 
 const DailyTextButton = ({
   scripture,
@@ -205,61 +200,21 @@ const Statistics = ({
 }: {
   statistics: StasticsType
   isOpen: boolean
-  setIsOpen: (isOpen: boolean) => void
+  setIsOpen: Dispatch<SetStateAction<boolean>>
 }) => {
   return (
-    <Transition.Root show={isOpen} as={Fragment}>
-      <Dialog
-        onClose={setIsOpen}
-        className='fixed inset-0 flex flex-col justify-end overflow-y-auto p-4'
-      >
-        <Transition.Child
-          enter='duration-300 ease-out'
-          enterFrom='opacity-0'
-          enterTo='opacity-100'
-          leave='duration-200 ease-in'
-          leaveFrom='opacity-100'
-          leaveTo='opacity-0'
-        >
-          <div className='bg-cobalt/90 fixed inset-0' />
-        </Transition.Child>
-        <Transition.Child
-          enter='duration-300 ease-out'
-          enterFrom='opacity-0 scale-95'
-          enterTo='opacity-100 scale-100'
-          leave='duration-200 ease-in'
-          leaveFrom='opacity-100 scale-100'
-          leaveTo='opacity-0 scale-95'
-        >
-          <Dialog.Panel className='dark:bg-cb-dusty-blue relative z-10 rounded-lg p-4 dark:text-gray-100'>
-            <button
-              type='button'
-              onClick={() => setIsOpen(false)}
-              className='absolute right-4 top-4'
-            >
-              <XMarkIcon className='h-6 w-6' />
-            </button>
-            <div className='space-y-3'>
-              <Dialog.Title className='mt-4 text-center text-xl'>
-                statistics
-              </Dialog.Title>
-              <div className='grid grid-cols-3'>
-                {Object.entries(statisticsLabels).map(([key, label]) => (
-                  <div key={key}>
-                    <div className='text-cb-pink text-center text-4xl'>
-                      {statistics[key]}
-                    </div>
-                    <div className='text-cb-light-blue text-center'>
-                      {label}
-                    </div>
-                  </div>
-                ))}
-              </div>
+    <Modal isOpen={isOpen} setIsOpen={setIsOpen} title='statistics'>
+      <div className='grid grid-cols-3'>
+        {Object.entries(statisticsLabels).map(([key, label]) => (
+          <div key={key}>
+            <div className='text-cb-pink text-center text-4xl'>
+              {statistics[key]}
             </div>
-          </Dialog.Panel>
-        </Transition.Child>
-      </Dialog>
-    </Transition.Root>
+            <div className='text-cb-light-blue text-center'>{label}</div>
+          </div>
+        ))}
+      </div>
+    </Modal>
   )
 }
 
