@@ -4,7 +4,7 @@ const booksAndChaptersMap: Record<string, number> = {
   'Lev.': 27,
   'Num.': 36,
   'Deut.': 34,
-  'Josh.': 6,
+  'Josh.': 24,
   'Judg.': 21,
   Ruth: 4,
   '1 Sam.': 31,
