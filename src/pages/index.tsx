@@ -6,6 +6,7 @@ import {
 } from '@heroicons/react/24/solid'
 import { format } from 'date-fns/format'
 import { subDays } from 'date-fns/subDays'
+import { toast } from 'react-toastify'
 
 import Page from '@/components/page'
 import Main from '@/components/main'
@@ -408,11 +409,12 @@ const Home = () => {
                     })
                   )
                 )
+                toast.success('copied export code to clipboard')
               }}
             >
               export
             </Button>
-            <hr />
+            <hr className='border-cb-white/25' />
             <textarea
               className='bg-cobalt w-full p-4'
               value={importText}
@@ -431,6 +433,7 @@ const Home = () => {
                 setStreak(importedStreak ?? streak)
                 setMaxStreak(importedMaxStreak ?? maxStreak)
                 setTotal(importedTotal ?? total)
+                toast.success('updated statistics')
                 setImportText('')
               }}
               disabled={!importText}
