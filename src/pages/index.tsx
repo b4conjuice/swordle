@@ -1,5 +1,9 @@
 import { useState, useEffect, Dispatch, SetStateAction } from 'react'
-import { ChartBarIcon, Cog6ToothIcon } from '@heroicons/react/24/solid'
+import {
+  ChartBarIcon,
+  Cog6ToothIcon,
+  ArrowUpTrayIcon,
+} from '@heroicons/react/24/solid'
 import { format } from 'date-fns/format'
 import { subDays } from 'date-fns/subDays'
 
@@ -10,6 +14,8 @@ import Modal from '@/components/modal'
 import books, { bookIndex, booksAndChaptersMap } from '@/utils/books'
 import useLocalStorage from '@/utils/useLocalStorage'
 import { api } from '@/utils/api'
+import copyToClipboard from '@/utils/copyToClipboard'
+import Button from '@/components/button'
 
 const DailyTextButton = ({
   scripture,
@@ -255,6 +261,8 @@ const Home = () => {
   const readToday = lastRead === today
   const [isOpen, setIsOpen] = useState(readToday || false)
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false)
+  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false)
+  const [importText, setImportText] = useState('')
   useEffect(() => {
     setIsOpen(readToday)
   }, [readToday])
@@ -269,11 +277,14 @@ const Home = () => {
     <Page>
       <Main className='flex flex-col p-4'>
         <div className='flex justify-end space-x-4'>
-          <button type='button' onClick={() => setIsSettingsDialogOpen(true)}>
-            <Cog6ToothIcon className='h-6 w-6' />
+          <button type='button' onClick={() => setIsExportDialogOpen(true)}>
+            <ArrowUpTrayIcon className='h-6 w-6' />
           </button>
           <button type='button' onClick={() => setIsOpen(true)}>
             <ChartBarIcon className='h-6 w-6' />
+          </button>
+          <button type='button' onClick={() => setIsSettingsDialogOpen(true)}>
+            <Cog6ToothIcon className='h-6 w-6' />
           </button>
         </div>
         <div className='flex flex-grow flex-col items-center justify-center space-y-4'>
@@ -380,6 +391,53 @@ const Home = () => {
                 </select>
               </div>
             )}
+          </Modal>
+          <Modal
+            isOpen={isExportDialogOpen}
+            setIsOpen={setIsExportDialogOpen}
+            title='import/export statistics'
+          >
+            <Button
+              onClick={() => {
+                copyToClipboard(
+                  btoa(
+                    JSON.stringify({
+                      streak,
+                      maxStreak,
+                      total,
+                    })
+                  )
+                )
+              }}
+            >
+              export
+            </Button>
+            <hr />
+            <textarea
+              className='bg-cobalt w-full p-4'
+              value={importText}
+              onChange={e => {
+                setImportText(e.target.value)
+              }}
+            />
+            <Button
+              onClick={() => {
+                const statistics = JSON.parse(atob(importText))
+                const {
+                  streak: importedStreak,
+                  maxStreak: importedMaxStreak,
+                  total: importedTotal,
+                } = statistics
+                setStreak(importedStreak ?? streak)
+                setMaxStreak(importedMaxStreak ?? maxStreak)
+                setTotal(importedTotal ?? total)
+                setImportText('')
+              }}
+              disabled={!importText}
+              className='disabled:pointer-events-none disabled:opacity-25'
+            >
+              import
+            </Button>
           </Modal>
         </div>
       </Main>
