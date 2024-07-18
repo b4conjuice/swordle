@@ -52,7 +52,7 @@ const DailyTextButton = ({
     : [savedBookAndChapter]
   const [book, chapter] = (bookAndChapter ?? '').split(' ')
   const bookNumber = bookIndex(book ?? '')
-  const bibleText = `${bookNumber}${chapter ?? ''.padStart(3, '0')}001`
+  const bibleText = `${bookNumber}${(chapter ?? '').padStart(3, '0')}001`
 
   const chapterLink = `https://www.jw.org/finder?srcid=jwlshare&wtlocale=E&prefer=lang&bible=${bibleText}&pub=nwtsty`
   return (
