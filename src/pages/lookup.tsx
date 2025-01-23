@@ -33,6 +33,7 @@ export default function SwordPage() {
   const text = scriptureData
     ? `${scriptureData.reference}\n${scriptureData.text}`
     : ''
+  const error = !scriptureData?.success
   return (
     <Page>
       <Main className='flex flex-col p-4'>
@@ -55,7 +56,9 @@ export default function SwordPage() {
             </button>
           </form>
           {scripture ? (
-            isLoading ? (
+            error ? (
+              <p>something went wrong</p>
+            ) : isLoading ? (
               <p>searching for {scripture}</p>
             ) : text ? (
               <>
