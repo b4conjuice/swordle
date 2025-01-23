@@ -19,9 +19,11 @@ export default function SwordPage() {
     register,
     handleSubmit,
     formState: { errors, isDirty },
+    reset,
   } = useForm<Inputs>()
   const onSubmit: SubmitHandler<Inputs> = data => {
     setScripture(data.scripture)
+    reset()
   }
 
   const scripturesQuery = api.sword.scriptures.useQuery({
