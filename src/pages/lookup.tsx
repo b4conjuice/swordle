@@ -30,7 +30,6 @@ export default function SwordPage() {
     scripture,
   })
   const { data: scriptureData, isLoading } = scripturesQuery
-  console.log({ scriptureData })
   const text = scriptureData
     ? `${scriptureData.reference}\n${scriptureData.text}`
     : ''
@@ -52,12 +51,12 @@ export default function SwordPage() {
               type='submit'
               disabled={!isDirty}
             >
-              go
+              search
             </button>
           </form>
           {scripture ? (
             isLoading ? (
-              <p>loading</p>
+              <p>searching for {scripture}</p>
             ) : text ? (
               <>
                 <textarea className='bg-cobalt' value={text} />
