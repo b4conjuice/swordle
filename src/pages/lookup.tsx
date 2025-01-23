@@ -33,7 +33,7 @@ export default function SwordPage() {
   const text = scriptureData
     ? `${scriptureData.reference}\n${scriptureData.text}`
     : ''
-  const error = !scriptureData?.success
+  const error = scriptureData && !scriptureData?.success
   return (
     <Page>
       <Main className='flex flex-col p-4'>
