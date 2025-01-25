@@ -1,11 +1,14 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import { useForm, type SubmitHandler } from 'react-hook-form'
+import { useHotkeys } from 'react-hotkeys-hook'
 
-import { api } from '@/utils/api'
 import Main from '@/components/main'
 import Page from '@/components/page'
+import CommandPalette from '@/components/commandPalette'
+import { api } from '@/utils/api'
 import copyToClipboard from '@/utils/copyToClipboard'
+import { booksAndChaptersMap } from '@/utils/books'
 
 type Inputs = {
   scripture: string
@@ -14,7 +17,8 @@ type Inputs = {
 const isValidScripture = (scripture: string) => scripture.includes(':')
 
 export default function SwordPage() {
-  const [scripture, setScripture] = useState<string>('')
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false)
+  const [scripture, setScripture] = useState('')
   const {
     register,
     handleSubmit,
@@ -34,6 +38,25 @@ export default function SwordPage() {
     ? `${scriptureData.reference}\n${scriptureData.text}`
     : ''
   const error = scriptureData && !scriptureData?.success
+
+  useHotkeys(
+    'meta+k',
+    () => {
+      setIsCommandPaletteOpen(!isCommandPaletteOpen)
+    },
+    [isCommandPaletteOpen]
+  )
+  useHotkeys(
+    'ctrl+f',
+    () => {
+      // focus search input
+      searchInputRef.current?.focus()
+    },
+    [isCommandPaletteOpen]
+  )
+
+  // create ref for search input
+  const searchInputRef = useRef<HTMLInputElement>(null) // TODO: not compatible with react-hook-form (register)
   return (
     <Page>
       <Main className='flex flex-col p-4'>
@@ -46,6 +69,7 @@ export default function SwordPage() {
               {...register('scripture', {
                 validate: scripture => isValidScripture(scripture),
               })}
+              list='datalist-books'
             />
             <button
               className='block w-full translate-y-[-4px] transform rounded-lg bg-[#5a3e84] p-3 text-lg duration-[600ms] ease-[cubic-bezier(.3,.7,.4,1)] hover:ease-[cubic-bezier(.3,.7,.4,1.5)] disabled:pointer-events-none disabled:opacity-25 group-hover:translate-y-[-6px] group-hover:duration-[250ms] group-active:translate-y-[-2px] group-active:duration-[34ms]'
@@ -80,6 +104,36 @@ export default function SwordPage() {
           ) : null}
         </div>
       </Main>
+      <CommandPalette
+        commands={[
+          {
+            id: 'search-scriptures',
+            title: 'search scriptures',
+            action: (args?: unknown) => {
+              // setIsScriptureSearchOpen(true)
+            },
+          },
+        ]}
+        isOpen={isCommandPaletteOpen}
+        setIsOpen={setIsCommandPaletteOpen}
+      />
+      <datalist id='datalist-books'>
+        {Object.entries(booksAndChaptersMap)
+          .map(([book, chapter]) =>
+            Array.from(
+              {
+                length: chapter,
+              },
+              (_, i) => i + 1
+            ).map(ch => `${book.replace('.', '')} ${ch}:`)
+          )
+          .flat()
+          .map(bookch => (
+            <option key={bookch} value={bookch}>
+              {bookch}
+            </option>
+          ))}
+      </datalist>
     </Page>
   )
 }
