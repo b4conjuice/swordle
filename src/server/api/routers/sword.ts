@@ -31,6 +31,10 @@ export const swordRouter = createTRPCRouter({
   scriptures: publicProcedure
     .input(z.object({ scripture: z.string() }))
     .query(async ({ input }) => {
+      const { scripture } = input
+      if (!scripture) {
+        throw new Error('scripture is required')
+      }
       const data: SciptureData = await fetcher(
         `https://api.dlopez.app/api/sword/scriptures/${input.scripture}`
       )

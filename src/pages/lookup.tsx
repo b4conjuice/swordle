@@ -61,7 +61,7 @@ export default function SwordPage() {
     <Page>
       <Main className='flex flex-col p-4'>
         <div className='flex flex-grow flex-col space-y-4'>
-          <h1>sword</h1>
+          <h1>lookup</h1>
           <form className='space-y-4' onSubmit={handleSubmit(onSubmit)}>
             <input
               className='bg-cobalt block w-full'
@@ -86,7 +86,11 @@ export default function SwordPage() {
               <p>searching for {scripture}</p>
             ) : text ? (
               <>
-                <textarea className='bg-cobalt' value={text} />
+                <textarea
+                  className='bg-cobalt flex-grow'
+                  value={text}
+                  readOnly
+                />
                 <button
                   className='block w-full translate-y-[-4px] transform rounded-lg bg-[#5a3e84] p-3 text-lg duration-[600ms] ease-[cubic-bezier(.3,.7,.4,1)] hover:ease-[cubic-bezier(.3,.7,.4,1.5)] disabled:pointer-events-none disabled:opacity-25 group-hover:translate-y-[-6px] group-hover:duration-[250ms] group-active:translate-y-[-2px] group-active:duration-[34ms]'
                   type='button'
