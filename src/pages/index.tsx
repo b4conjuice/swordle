@@ -339,6 +339,9 @@ const Home = () => {
             setIsOpen={setIsSettingsDialogOpen}
             title='settings'
           >
+            <Button href='/lookup' className='block' internal>
+              lookup
+            </Button>
             <select
               className='bg-cobalt w-full p-4'
               value={buttonType}

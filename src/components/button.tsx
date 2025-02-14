@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import classNames from 'classnames'
 
 // based on: https://www.joshwcomeau.com/animation/3d-button/
@@ -11,6 +12,7 @@ export default function Button({
   type,
   disabled,
   children,
+  internal,
 }: {
   backgroundColorClassName?: string
   displayClassName?: string
@@ -20,6 +22,7 @@ export default function Button({
   href?: string
   type?: 'button' | 'submit' | 'reset' | undefined
   disabled?: boolean
+  internal?: boolean
   children?: React.ReactNode
 }) {
   const outerClassName = classNames(
@@ -33,15 +36,18 @@ export default function Button({
     displayClassName ?? 'block'
   )
   if (href) {
-    const anchorProps = {
-      href,
-      target: '_blank',
-      rel: 'noopener noreferrer',
-    }
+    const LinkTag = internal ? Link : 'a'
+    const anchorProps = internal
+      ? { href }
+      : {
+          href,
+          target: '_blank',
+          rel: 'noopener noreferrer',
+        }
     return (
-      <a className={outerClassName} {...anchorProps}>
+      <LinkTag className={outerClassName} {...anchorProps}>
         <span className={innerClassName}>{children}</span>
-      </a>
+      </LinkTag>
     )
   }
   const buttonProps = {
