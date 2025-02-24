@@ -342,6 +342,9 @@ const Home = () => {
             <Button href='/lookup' className='block' internal>
               lookup
             </Button>
+            <Button href='/sword' className='block' internal>
+              sword
+            </Button>
             <select
               className='bg-cobalt w-full p-4'
               value={buttonType}

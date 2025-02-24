@@ -40,17 +40,17 @@ export default function CommandPalette({
   const setIsOpen = externalSetIsOpen ?? internalSetIsOpen
 
   // TODO: add option to disable this
-  // useEffect(() => {
-  //   function onKeydown(e: KeyboardEvent) {
-  //     if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
-  //       setIsOpen(!isOpen)
-  //     }
-  //   }
-  //   window.addEventListener('keydown', onKeydown)
-  //   return () => {
-  //     window.removeEventListener('keydown', onKeydown)
-  //   }
-  // }, [isOpen, setIsOpen])
+  useEffect(() => {
+    function onKeydown(e: KeyboardEvent) {
+      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+        setIsOpen(!isOpen)
+      }
+    }
+    window.addEventListener('keydown', onKeydown)
+    return () => {
+      window.removeEventListener('keydown', onKeydown)
+    }
+  }, [isOpen, setIsOpen])
 
   const fuse = new Fuse(commands, {
     keys: ['id', 'title', { name: 'name', weight: 2 }],
@@ -151,7 +151,7 @@ export default function CommandPalette({
       </Transition>
       {externalSetIsOpen === undefined && (
         <button
-          className='absolute bottom-16 right-4 block rounded-lg bg-cb-off-blue p-2 md:hidden
+          className='absolute bottom-4 right-4 block rounded-lg bg-cb-off-blue p-2 md:hidden
         '
           type='button'
           onClick={() => {
