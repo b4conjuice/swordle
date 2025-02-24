@@ -33,7 +33,7 @@ export default function SwordPage() {
       <Main className='flex flex-col p-4'>
         <div className='flex flex-grow flex-col space-y-4'>
           <h1>sword</h1>
-          <ul className='flex-grow space-y-4 overflow-y-scroll'>
+          <ul className='flex-grow space-y-4'>
             {[].map(({ chapterLink, bookChapter }) => (
               <li key={chapterLink}>
                 <Button
