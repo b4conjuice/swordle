@@ -38,7 +38,7 @@ export default function SwordPage() {
               <li key={chapterLink}>
                 <Button
                   onClick={() => {
-                    window.open(chapterLink, '_blank')
+                    window.open(chapterLink)
                   }}
                 >
                   {bookChapter}
@@ -55,7 +55,7 @@ export default function SwordPage() {
                   bookChapter: bookWithChapter,
                 },
               ])
-              window.open(chapterLink, '_blank')
+              window.open(chapterLink)
             }}
           >
             {bookWithChapter}
