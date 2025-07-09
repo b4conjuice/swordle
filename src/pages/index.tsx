@@ -234,7 +234,7 @@ const Home = () => {
   const now = new Date()
   const today = format(now, 'yyyy-MM-dd')
   const yesterday = format(subDays(now, 1), 'yyyy-MM-dd')
-  const { data } = api.sword.dt.useQuery({ date: today })
+  const { data, isLoading } = api.sword.dt.useQuery({ date: today })
   const [streak, setStreak] = useLocalStorage('swordle-streak', 0)
   const [maxStreak, setMaxStreak] = useLocalStorage('swordle-maxStreak', 0)
   const [total, setTotal] = useLocalStorage('swordle-total', 0)
@@ -290,7 +290,22 @@ const Home = () => {
         </div>
         <div className='flex flex-grow flex-col items-center justify-center space-y-4'>
           <Title>swordle</Title>
-          {(data ?? bookAndChapter) &&
+          {isLoading ? (
+            buttonType === 'dailyText' ? (
+              <span className='bg-cb-dark-blue group w-full rounded-lg border-none text-center text-lg'>
+                <span className='animate-pulse block translate-y-[-4px] transform rounded-lg bg-[#5a3e84] p-3 text-lg duration-[600ms] ease-[cubic-bezier(.3,.7,.4,1)] text-gray-100'>
+                  <span className='invisible'>Hello</span>
+                </span>
+              </span>
+            ) : (
+              <span className='bg-cb-dark-blue group w-full rounded-lg border-none text-center text-lg'>
+                <span className='animate-pulse block translate-y-[-4px] transform rounded-lg bg-[#4a6da7] p-3 text-lg duration-[600ms] ease-[cubic-bezier(.3,.7,.4,1)] text-gray-100'>
+                  <span className='invisible'>Hello</span>
+                </span>
+              </span>
+            )
+          ) : (
+            (data ?? bookAndChapter) &&
             (buttonType === 'dailyText' ? (
               <DailyTextButton
                 scripture={data?.scripture ?? ''}
@@ -324,7 +339,8 @@ const Home = () => {
                 sequence={sequence}
                 setSequence={setSequence}
               />
-            ))}
+            ))
+          )}
           <Statistics
             statistics={{
               streak,
