@@ -7,6 +7,7 @@ import {
 import { format } from 'date-fns/format'
 import { subDays } from 'date-fns/subDays'
 import { toast } from 'react-toastify'
+import { useCopyToClipboard } from '@uidotdev/usehooks'
 
 import Page from '@/components/page'
 import Main from '@/components/main'
@@ -15,7 +16,6 @@ import Modal from '@/components/modal'
 import books, { bookIndex, booksAndChaptersMap } from '@/utils/books'
 import useLocalStorage from '@/utils/useLocalStorage'
 import { api } from '@/utils/api'
-import copyToClipboard from '@/utils/copyToClipboard'
 import Button from '@/components/button'
 
 const DailyTextButton = ({
@@ -274,6 +274,7 @@ const Home = () => {
   const sequenceChapters = sequenceBookName
     ? booksAndChaptersMap[sequenceBookName] ?? 1
     : 1
+  const [copiedText, copyToClipboard] = useCopyToClipboard()
   return (
     <Page>
       <Main className='flex flex-col p-4'>
