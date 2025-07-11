@@ -32,6 +32,8 @@ const DailyTextButton = ({
   setLastRead,
   bookAndChapter: savedBookAndChapter,
   readToday,
+  date,
+  dateString,
 }: {
   scripture: string
   today: string
@@ -46,6 +48,8 @@ const DailyTextButton = ({
   setLastRead: (lastRead: string) => void
   bookAndChapter: string | undefined
   readToday: boolean
+  date: string
+  dateString: string
 }) => {
   const [bookAndChapter] = scripture
     ? scripture.split(':')
@@ -54,7 +58,8 @@ const DailyTextButton = ({
   const bookNumber = bookIndex(book ?? '')
   const bibleText = `${bookNumber}${(chapter ?? '').padStart(3, '0')}001`
 
-  const chapterLink = `https://www.jw.org/finder?srcid=jwlshare&wtlocale=E&prefer=lang&bible=${bibleText}&pub=nwtsty`
+  // const chapterLink = `https://www.jw.org/finder?srcid=jwlshare&wtlocale=E&prefer=lang&bible=${bibleText}&pub=nwtsty`
+  const chapterLink = `https://www.jw.org/finder?srcid=jwlshare&wtlocale=E&prefer=lang&alias=daily-text&date=${date}`
   return (
     <a
       className='bg-cb-dark-blue group w-full cursor-pointer rounded-lg border-none text-center text-lg'
@@ -84,7 +89,7 @@ const DailyTextButton = ({
           readToday ? 'text-cb-yellow' : 'text-gray-100'
         }`}
       >
-        read chapter: {bookAndChapter}
+        read daily text for {dateString}
         {readToday ? ' again' : ''}
       </span>
     </a>
@@ -233,6 +238,8 @@ const buttonTypes = [
 const Home = () => {
   const now = new Date()
   const today = format(now, 'yyyy-MM-dd')
+  const date = format(now, 'yyyyMMdd')
+  const dateString = format(now, 'M/d/yy')
   const yesterday = format(subDays(now, 1), 'yyyy-MM-dd')
   const { data: dtData, isLoading: dtDataIsLoading } = api.sword.dt.useQuery({
     date: today,
@@ -295,29 +302,23 @@ const Home = () => {
           <Title>swordle</Title>
           {(dtData ?? bookAndChapter) &&
             (buttonType === 'dailyText' ? (
-              dtDataIsLoading ? (
-                <span className='bg-cb-dark-blue group w-full rounded-lg border-none text-center text-lg'>
-                  <span className='animate-pulse block translate-y-[-4px] transform rounded-lg bg-[#5a3e84] p-3 text-lg duration-[600ms] ease-[cubic-bezier(.3,.7,.4,1)] text-gray-100'>
-                    <span className='invisible'>Hello</span>
-                  </span>
-                </span>
-              ) : (
-                <DailyTextButton
-                  scripture={dtData?.scripture ?? ''}
-                  today={today}
-                  yesterday={yesterday}
-                  streak={streak}
-                  setStreak={setStreak}
-                  maxStreak={maxStreak}
-                  setMaxStreak={setMaxStreak}
-                  total={total}
-                  setTotal={setTotal}
-                  lastRead={lastRead}
-                  setLastRead={setLastRead}
-                  bookAndChapter={bookAndChapter}
-                  readToday={readToday}
-                />
-              )
+              <DailyTextButton
+                scripture={dtData?.scripture ?? ''}
+                today={today}
+                yesterday={yesterday}
+                streak={streak}
+                setStreak={setStreak}
+                maxStreak={maxStreak}
+                setMaxStreak={setMaxStreak}
+                total={total}
+                setTotal={setTotal}
+                lastRead={lastRead}
+                setLastRead={setLastRead}
+                bookAndChapter={bookAndChapter}
+                readToday={readToday}
+                date={date}
+                dateString={dateString}
+              />
             ) : (
               <SequentialButton
                 {...dtData}
