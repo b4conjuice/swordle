@@ -234,7 +234,9 @@ const Home = () => {
   const now = new Date()
   const today = format(now, 'yyyy-MM-dd')
   const yesterday = format(subDays(now, 1), 'yyyy-MM-dd')
-  const { data, isLoading } = api.sword.dt.useQuery({ date: today })
+  const { data: dtData, isLoading: dtDataIsLoading } = api.sword.dt.useQuery({
+    date: today,
+  })
   const [streak, setStreak] = useLocalStorage('swordle-streak', 0)
   const [maxStreak, setMaxStreak] = useLocalStorage('swordle-maxStreak', 0)
   const [total, setTotal] = useLocalStorage('swordle-total', 0)
@@ -252,13 +254,13 @@ const Home = () => {
   const [sequence, setSequence] = useLocalStorage('swordle-sequence', '1:1')
 
   useEffect(() => {
-    if (data?.scripture) {
-      const [latestBookAndChapter] = data.scripture.split(':')
+    if (dtData?.scripture) {
+      const [latestBookAndChapter] = dtData.scripture.split(':')
       if (latestBookAndChapter !== bookAndChapter) {
         setBookAndChapter(latestBookAndChapter)
       }
     }
-  }, [data, bookAndChapter, setBookAndChapter])
+  }, [dtData, bookAndChapter, setBookAndChapter])
   const readToday = lastRead === today
   const [isOpen, setIsOpen] = useState(readToday || false)
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false)
@@ -291,41 +293,34 @@ const Home = () => {
         </div>
         <div className='flex flex-grow flex-col items-center justify-center space-y-4'>
           <Title>swordle</Title>
-          {isLoading ? (
-            buttonType === 'dailyText' ? (
-              <span className='bg-cb-dark-blue group w-full rounded-lg border-none text-center text-lg'>
-                <span className='animate-pulse block translate-y-[-4px] transform rounded-lg bg-[#5a3e84] p-3 text-lg duration-[600ms] ease-[cubic-bezier(.3,.7,.4,1)] text-gray-100'>
-                  <span className='invisible'>Hello</span>
-                </span>
-              </span>
-            ) : (
-              <span className='bg-cb-dark-blue group w-full rounded-lg border-none text-center text-lg'>
-                <span className='animate-pulse block translate-y-[-4px] transform rounded-lg bg-[#4a6da7] p-3 text-lg duration-[600ms] ease-[cubic-bezier(.3,.7,.4,1)] text-gray-100'>
-                  <span className='invisible'>Hello</span>
-                </span>
-              </span>
-            )
-          ) : (
-            (data ?? bookAndChapter) &&
+          {(dtData ?? bookAndChapter) &&
             (buttonType === 'dailyText' ? (
-              <DailyTextButton
-                scripture={data?.scripture ?? ''}
-                today={today}
-                yesterday={yesterday}
-                streak={streak}
-                setStreak={setStreak}
-                maxStreak={maxStreak}
-                setMaxStreak={setMaxStreak}
-                total={total}
-                setTotal={setTotal}
-                lastRead={lastRead}
-                setLastRead={setLastRead}
-                bookAndChapter={bookAndChapter}
-                readToday={readToday}
-              />
+              dtDataIsLoading ? (
+                <span className='bg-cb-dark-blue group w-full rounded-lg border-none text-center text-lg'>
+                  <span className='animate-pulse block translate-y-[-4px] transform rounded-lg bg-[#5a3e84] p-3 text-lg duration-[600ms] ease-[cubic-bezier(.3,.7,.4,1)] text-gray-100'>
+                    <span className='invisible'>Hello</span>
+                  </span>
+                </span>
+              ) : (
+                <DailyTextButton
+                  scripture={dtData?.scripture ?? ''}
+                  today={today}
+                  yesterday={yesterday}
+                  streak={streak}
+                  setStreak={setStreak}
+                  maxStreak={maxStreak}
+                  setMaxStreak={setMaxStreak}
+                  total={total}
+                  setTotal={setTotal}
+                  lastRead={lastRead}
+                  setLastRead={setLastRead}
+                  bookAndChapter={bookAndChapter}
+                  readToday={readToday}
+                />
+              )
             ) : (
               <SequentialButton
-                {...data}
+                {...dtData}
                 today={today}
                 yesterday={yesterday}
                 streak={streak}
@@ -340,8 +335,7 @@ const Home = () => {
                 sequence={sequence}
                 setSequence={setSequence}
               />
-            ))
-          )}
+            ))}
           <Statistics
             statistics={{
               streak,
