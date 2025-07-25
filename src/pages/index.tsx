@@ -61,7 +61,7 @@ const DailyTextButton = ({
     's4-dt-tomorrow',
     null
   )
-  const todayDate = format(now, 'EEEE, MMMM dd')
+  const todayDate = format(now, 'EEEE, MMMM d')
   const useTomorrow = dtTomorrow?.date === todayDate
   const [bookAndChapter] = scripture
     ? scripture.split(':')
