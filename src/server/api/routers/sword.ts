@@ -4,17 +4,7 @@ import fetcher from '@/utils/fetcher'
 
 import requestDailyText from '@/utils/requestDailyText'
 import { createTRPCRouter, publicProcedure } from '../trpc'
-
-type SwordData =
-  | {
-      comment: string
-      dailyText: string
-      date: string
-      scripture: string
-      success: boolean
-      text: string
-    }
-  | undefined
+import { SwordData } from '@/utils/types'
 
 type SciptureData = {
   success: boolean

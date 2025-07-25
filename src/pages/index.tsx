@@ -8,6 +8,7 @@ import { format } from 'date-fns/format'
 import { subDays } from 'date-fns/subDays'
 import { toast } from 'react-toastify'
 import { useCopyToClipboard } from '@uidotdev/usehooks'
+import { addDays } from 'date-fns/addDays'
 
 import Page from '@/components/page'
 import Main from '@/components/main'
@@ -17,6 +18,7 @@ import books, { bookIndex, booksAndChaptersMap } from '@/utils/books'
 import useLocalStorage from '@/utils/useLocalStorage'
 import { api } from '@/utils/api'
 import Button from '@/components/button'
+import { SwordData } from '@/utils/types'
 
 const DailyTextButton = ({
   scripture,
@@ -51,6 +53,16 @@ const DailyTextButton = ({
   date: string
   dateString: string
 }) => {
+  const now = new Date()
+  const { data: tomorrowData } = api.sword.dt.useQuery({
+    date: format(addDays(now, 1), 'yyyy/MM/dd'),
+  })
+  const [dtTomorrow, setDtTomorrow] = useLocalStorage<SwordData | null>(
+    's4-dt-tomorrow',
+    null
+  )
+  const todayDate = format(now, 'EEEE, MMMM dd')
+  const useTomorrow = dtTomorrow?.date === todayDate
   const [bookAndChapter] = scripture
     ? scripture.split(':')
     : [savedBookAndChapter]
@@ -58,8 +70,13 @@ const DailyTextButton = ({
   const bookNumber = bookIndex(book ?? '')
   const bibleText = `${bookNumber}${(chapter ?? '').padStart(3, '0')}001`
 
-  // const chapterLink = `https://www.jw.org/finder?srcid=jwlshare&wtlocale=E&prefer=lang&bible=${bibleText}&pub=nwtsty`
-  const chapterLink = `https://www.jw.org/finder?srcid=jwlshare&wtlocale=E&prefer=lang&alias=daily-text&date=${date}`
+  const chapterLink = useTomorrow
+    ? `https://www.jw.org/finder?srcid=jwlshare&wtlocale=E&prefer=lang&bible=${bibleText}&pub=nwtsty`
+    : `https://www.jw.org/finder?srcid=jwlshare&wtlocale=E&prefer=lang&alias=daily-text&date=${date}`
+  const [latestBookAndChapter] = tomorrowData?.scripture.split(':') ?? []
+  const buttonText = useTomorrow
+    ? `read ${latestBookAndChapter}`
+    : `read daily text for ${dateString}`
   return (
     <a
       className='bg-cb-dark-blue group w-full cursor-pointer rounded-lg border-none text-center text-lg'
@@ -82,6 +99,7 @@ const DailyTextButton = ({
             setStreak(1)
           }
         }
+        setDtTomorrow(tomorrowData)
       }}
     >
       <span
@@ -89,7 +107,7 @@ const DailyTextButton = ({
           readToday ? 'text-cb-yellow' : 'text-gray-100'
         }`}
       >
-        read daily text for {dateString}
+        {buttonText}
         {readToday ? ' again' : ''}
       </span>
     </a>
